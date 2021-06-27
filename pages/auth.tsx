@@ -19,10 +19,15 @@ export default function Auth() {
 
   return (
     <main>
-      {!auth.currentUser && (
+      {!auth.currentUser ? (
         <Card className={styles.card}>
           <Button onClick={handleOpen}>Register</Button>
           <RegisterModal open={open} handleClose={handleClose} />
+        </Card>
+      ) : (
+        <Card className={styles.card}>
+          <p>Currently logged in as {auth.currentUser.email}</p>
+          <Button onClick={() => auth.signOut()}>Sign Out</Button>
         </Card>
       )}
     </main>

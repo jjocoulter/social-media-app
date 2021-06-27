@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -32,45 +32,46 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const RegisterModal = ({ open, handleClose }: any) => {
-  const [passwordMatch, setPasswordMatch] = useState(true);
+  const password = useRef({});
   const classes = useStyles();
   const {
     register,
     handleSubmit,
-    reset,
+    watch,
     formState: { isValid, isDirty, errors },
   } = useForm({ mode: "onChange" });
 
-  const createAccount = ({
+  password.current = watch("password", "");
+
+  const createAccount = async ({
     firstName,
     lastName,
     email,
     password,
-    confirmPassword,
   }: {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
-    confirmPassword: string;
   }) => {
-    if (password !== confirmPassword) {
-      setPasswordMatch(false);
-    } else {
-      auth
-        .createUserWithEmailAndPassword(email, password)
-        .then((user) => {
-          firestore
-            .collection("users")
-            .doc(user?.user?.uid)
-            .set({ firstName: firstName, lastName: lastName, email: email });
-        })
-        .catch((e) => {
-          toast.error(e);
-        });
-      toast.success("User created successfully!");
-      handleClose();
-    }
+    await auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((user) => {
+        firestore
+          .collection("users")
+          .doc(user?.user?.uid)
+          .set({
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            fullName: firstName + " " + lastName,
+          });
+      })
+      .catch((e) => {
+        toast.error(e);
+      });
+    toast.success("User created successfully!");
+    handleClose();
   };
 
   return (
@@ -121,6 +122,8 @@ const RegisterModal = ({ open, handleClose }: any) => {
               message: "Please enter a valid email",
             },
           })}
+          helperText={errors.email ? errors.email.message : ""}
+          error={!!errors.email}
           label="Email"
           margin="normal"
           type="email"
@@ -139,11 +142,11 @@ const RegisterModal = ({ open, handleClose }: any) => {
               message: "Password must contain at least 6 characters.",
             },
           })}
+          helperText={errors.password ? errors.password.message : ""}
+          error={!!errors.password}
           label="Password"
           margin="normal"
           type="password"
-          error={!passwordMatch}
-          helperText={!passwordMatch ? "Passwords must match!" : ""}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -153,12 +156,17 @@ const RegisterModal = ({ open, handleClose }: any) => {
           }}
         />
         <TextField
-          {...register("confirmPassword")}
+          {...register("confirmPassword", {
+            validate: (value) =>
+              value === password.current || "The passwords must match",
+          })}
+          helperText={
+            errors.confirmPassword ? errors.confirmPassword.message : ""
+          }
+          error={!!errors.confirmPassword}
           label="Confirm Password"
           margin="normal"
           type="password"
-          error={!passwordMatch}
-          helperText={!passwordMatch ? "Passwords must match!" : ""}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -172,7 +180,7 @@ const RegisterModal = ({ open, handleClose }: any) => {
             variant="contained"
             type="submit"
             color="primary"
-            disabled={!isValid || !isDirty || !passwordMatch}
+            disabled={!isValid || !isDirty}
           >
             Submit
           </Button>
