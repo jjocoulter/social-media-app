@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 
 import { auth } from "@lib/firebase";
 import useStyles from "@lib/Styles";
+import ResetPasswordModal from "@components/ResetPasswordModal";
 
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -16,18 +17,24 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError(false);
 
-    const user = await auth
-      .signInWithEmailAndPassword(email, password)
-      .catch((err) => {
-        setError(true);
-        toast.error(err.message);
-      });
-    console.log(user);
+    await auth.signInWithEmailAndPassword(email, password).catch((err) => {
+      setError(true);
+      toast.error(err.message);
+    });
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   return (
@@ -65,6 +72,8 @@ const LoginForm = () => {
       <Button variant="contained" type="submit" color="primary">
         Log In
       </Button>
+      <a onClick={handleOpen}>Forgot password?</a>
+      <ResetPasswordModal open={open} handleClose={handleClose} />
     </form>
   );
 };
