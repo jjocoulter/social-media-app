@@ -50,6 +50,7 @@ export default function Auth() {
     <main>
       {!auth.currentUser ? (
         <Card className={styles.card}>
+          <LoginForm />
           <Button
             onClick={signInWithGoogle}
             variant="contained"
@@ -60,9 +61,10 @@ export default function Auth() {
           >
             Google SignIn
           </Button>
-          {/* <Button onClick={handleOpen}>Register</Button> */}
+          <Button onClick={handleOpen} variant="contained" color="primary">
+            Register
+          </Button>
           <RegisterModal open={open} handleClose={handleClose} />
-          <LoginForm />
         </Card>
       ) : (
         <Card className={styles.card}>
