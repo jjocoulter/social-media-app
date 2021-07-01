@@ -1,5 +1,9 @@
 const Profile = () => {
-  return <p>Profile page</p>;
+  return (
+    <main className="position:relative">
+      <p>Profile page</p>
+    </main>
+  );
 };
 
 export default Profile;

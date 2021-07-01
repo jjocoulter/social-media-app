@@ -46,7 +46,6 @@ const RegisterModal = ({ open, handleClose }: any) => {
           .set({
             firstName: firstName,
             lastName: lastName,
-            email: email,
             fullName: firstName + " " + lastName,
           });
       })

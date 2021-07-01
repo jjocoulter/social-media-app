@@ -3,7 +3,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 
 import { auth, googleAuthProvider, firestore } from "@lib/firebase";
-import styles from "@styles/Mat.module.css";
+import useStyles from "@lib/Styles";
 import RegisterModal from "@components/RegisterModal";
 import LoginForm from "@components/LoginForm";
 
@@ -12,6 +12,7 @@ import Card from "@material-ui/core/Card";
 import firebase from "firebase";
 
 export default function Auth() {
+  const classes = useStyles();
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -49,7 +50,7 @@ export default function Auth() {
   return (
     <main>
       {!auth.currentUser ? (
-        <Card className={styles.card}>
+        <Card className={classes.card}>
           <LoginForm />
           <Button
             onClick={signInWithGoogle}
@@ -67,7 +68,7 @@ export default function Auth() {
           <RegisterModal open={open} handleClose={handleClose} />
         </Card>
       ) : (
-        <Card className={styles.card}>
+        <Card className={classes.card}>
           <p>Currently logged in as {auth.currentUser.email}</p>
           <Button onClick={() => auth.signOut()}>Sign Out</Button>
         </Card>

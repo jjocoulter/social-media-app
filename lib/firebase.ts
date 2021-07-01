@@ -20,3 +20,21 @@ export const auth = firebase.auth();
 export const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
 export const firestore = firebase.firestore();
 export const storage = firebase.storage();
+export const STATE_CHANGED = firebase.storage.TaskEvent.STATE_CHANGED; // Progress of file upload
+export const arrayAdd = firebase.firestore.FieldValue.arrayUnion;
+
+export const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
+
+/**
+ * Converts a firestore document to JSON
+ * @param {DocumentSnapshot} doc
+ */
+export function postToJson(doc: { data: () => any }) {
+  const data = doc.data();
+  return {
+    ...data,
+    // Firestore Timestamp not serializable to JSON
+    createdAt: data.createdAt.toMillis(),
+    modifiedAt: data.modifiedAt.toMillis(),
+  };
+}

@@ -63,6 +63,37 @@ const useStyles = makeStyles((theme: Theme) =>
         width: "20ch",
       },
     },
+    card: {
+      minWidth: "150px",
+      maxWidth: "600px",
+      width: "100%",
+      margin: "0 auto",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: theme.spacing(2),
+      padding: theme.spacing(2),
+      "& .MuiButtonBase-card": {
+        margin: theme.spacing(2),
+      },
+    },
+    fab: {
+      position: "fixed",
+      bottom: "20px",
+      right: "20px",
+    },
+    createPostForm: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "1em",
+      padding: theme.spacing(2),
+    },
+    createPostTF: {
+      width: "50rem",
+    },
   })
 );
 
