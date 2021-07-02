@@ -61,3 +61,50 @@ button:hover {
 input[type="file"] {
   display: none;
 }
+
+/* Single post page */
+.container {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  margin: auto;
+  width: 50%;
+  border-radius: 30px;
+  border: 1px solid;
+  border-color: rgb(104, 104, 104);
+}
+
+.content {
+  font-size: larger;
+  padding: 1.5rem;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  font-size: small;
+  background-color: azure;
+  padding: 0.5rem;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 2rem;
+}
+
+.likeCount {
+  margin-left: 0.5rem;
+}
+
+.likeSection {
+  display: flex;
+  flex-direction: row;
+}
+
+.likeContainer {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  text-align: center;
+  font-size: smaller;
+}

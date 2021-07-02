@@ -27,6 +27,7 @@ const CreatePostPage = () => {
     } = useForm({ mode: "onChange" });
 
     return (
+      // TODO: Fix content text resetting on image or privacy update
       <form
         onSubmit={handleSubmit(createPost)}
         className={classes.createPostForm}
