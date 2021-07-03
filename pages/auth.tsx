@@ -42,6 +42,7 @@ export default function Auth() {
           fullName: googleUser?.displayName,
           firstName: name![0],
           lastName: name![1],
+          profileURL: googleUser?.photoURL,
         })
         .then(() => toast.success("Account created!"));
     }

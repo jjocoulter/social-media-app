@@ -12,85 +12,20 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 
 const CreatePostPage = () => {
-  const router = useRouter();
+  return (
+    <AuthCheck>
+      <CreatePostForm />
+    </AuthCheck>
+  );
+};
 
+const CreatePostForm = () => {
   const [downloadURL, setDownloadURL] = useState("");
   const [publicPost, setPublicPost] = useState(false);
 
-  const CreatePostForm = () => {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    const {
-      register,
-      handleSubmit,
-      formState: { isValid, isDirty, errors },
-    } = useForm({ mode: "onChange" });
-
-    return (
-      // TODO: Fix content text resetting on image or privacy update
-      <form
-        onSubmit={handleSubmit(createPost)}
-        className={classes.createPostForm}
-      >
-        {downloadURL === "" ? (
-          <ImageUploader setDownloadURL={setDownloadURL} />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={downloadURL} alt="" width="200" height="200" />
-        )}
-        <TextField
-          {...register("content", {
-            maxLength: { value: 20000, message: "content is too long" },
-            required: { value: true, message: "content is required" },
-          })}
-          label="content"
-          variant="outlined"
-          multiline
-          rows={10}
-          helperText={errors.content ? errors.content.message : ""}
-          error={!!errors.content}
-          className={classes.createPostTF}
-        />
-        <div>
-          <span
-            style={
-              publicPost
-                ? { textDecoration: "underline", fontWeight: "bold" }
-                : { textDecoration: "none" }
-            }
-            onClick={(e) => {
-              e.preventDefault();
-              setPublicPost(true);
-            }}
-          >
-            Public
-          </span>{" "}
-          /{" "}
-          <span
-            style={
-              publicPost
-                ? { textDecoration: "none" }
-                : { textDecoration: "underline", fontWeight: "bold" }
-            }
-            onClick={(e) => {
-              e.preventDefault();
-              setPublicPost(false);
-            }}
-          >
-            Private
-          </span>
-        </div>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={!isValid || !isDirty}
-        >
-          Create Post
-        </Button>
-      </form>
-    );
-  };
+  const router = useRouter();
 
   const createPost = async ({ content }: { content: string }) => {
     const uid = auth!.currentUser!.uid;
@@ -124,10 +59,74 @@ const CreatePostPage = () => {
     router.push(`/posts/${postUid}`);
   };
 
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid, isDirty, errors },
+  } = useForm({ mode: "onChange" });
+
   return (
-    <AuthCheck>
-      <CreatePostForm />
-    </AuthCheck>
+    <form
+      onSubmit={handleSubmit(createPost)}
+      className={classes.createPostForm}
+    >
+      {downloadURL === "" ? (
+        <ImageUploader setDownloadURL={setDownloadURL} />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={downloadURL} alt="" width="200" height="200" />
+      )}
+      <TextField
+        {...register("content", {
+          maxLength: { value: 20000, message: "content is too long" },
+          required: { value: true, message: "content is required" },
+        })}
+        label="content"
+        variant="outlined"
+        multiline
+        rows={10}
+        helperText={errors.content ? errors.content.message : ""}
+        error={!!errors.content}
+        className={classes.createPostTF}
+      />
+      <div>
+        <span
+          style={
+            publicPost
+              ? { textDecoration: "underline", fontWeight: "bold" }
+              : { textDecoration: "none" }
+          }
+          onClick={(e) => {
+            e.preventDefault();
+            setPublicPost(true);
+          }}
+        >
+          Public
+        </span>{" "}
+        /{" "}
+        <span
+          style={
+            publicPost
+              ? { textDecoration: "none" }
+              : { textDecoration: "underline", fontWeight: "bold" }
+          }
+          onClick={(e) => {
+            e.preventDefault();
+            setPublicPost(false);
+          }}
+        >
+          Private
+        </span>
+      </div>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={!isValid || !isDirty}
+      >
+        Create Post
+      </Button>
+    </form>
   );
 };
 

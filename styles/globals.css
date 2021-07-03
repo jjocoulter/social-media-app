@@ -64,13 +64,34 @@ input[type="file"] {
 
 /* Single post page */
 .container {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  margin: auto;
   width: 50%;
-  border-radius: 30px;
-  border: 1px solid;
-  border-color: rgb(104, 104, 104);
+  margin: auto;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  justify-content: space-between;
+}
+
+.author-details {
+  max-height: 100%;
+  padding: 0 1rem;
+}
+
+.author-name {
+  font-size: small;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+}
+
+.author-username {
+  font-size: smaller;
+  padding: 0;
+  margin: 0;
+  color: rgb(100, 100, 100);
 }
 
 .content {
@@ -90,21 +111,4 @@ input[type="file"] {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 2rem;
-}
-
-.likeCount {
-  margin-left: 0.5rem;
-}
-
-.likeSection {
-  display: flex;
-  flex-direction: row;
-}
-
-.likeContainer {
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  text-align: center;
-  font-size: smaller;
 }

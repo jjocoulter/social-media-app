@@ -47,6 +47,7 @@ const RegisterModal = ({ open, handleClose }: any) => {
             firstName: firstName,
             lastName: lastName,
             fullName: firstName + " " + lastName,
+            profileURL: null,
           });
       })
       .catch((e) => {
