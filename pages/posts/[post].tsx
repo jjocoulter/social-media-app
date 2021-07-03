@@ -1,15 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import Link from "next/link";
+import { useDocumentData } from "react-firebase-hooks/firestore";
 
 import { auth, firestore, postToJson } from "@lib/firebase";
+import LikeButton from "@components/LikeButton";
 
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ChatIcon from "@material-ui/icons/Chat";
 import ShareIcon from "@material-ui/icons/Share";
 import MoreIcon from "@material-ui/icons/MoreHoriz";
@@ -52,9 +53,11 @@ export async function getStaticPaths() {
 }
 
 const SinglePostPage = (props: any) => {
-  const [liked, setLiked] = useState(false);
-  const post = props.postContent;
+  const postRef = firestore.collection("posts").doc(props.path.split("/")[1]);
+  const [realtimePost] = useDocumentData(postRef);
+  const post = realtimePost || props.postContent;
   const author = props.poster;
+
   const postedAt =
     typeof post.createdAt === "number"
       ? new Date(post.createdAt)
@@ -68,10 +71,7 @@ const SinglePostPage = (props: any) => {
           <span>{postedAt.toLocaleString()}</span>
         </div>
         <div className="options">
-          <ThumbUpIcon
-            color={liked ? "primary" : "inherit"}
-            onClick={() => setLiked(!liked)}
-          />
+          <LikeButton postRef={postRef} />
           <ChatIcon />
           <ShareIcon />
         </div>

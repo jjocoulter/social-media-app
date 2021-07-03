@@ -22,6 +22,7 @@ export const firestore = firebase.firestore();
 export const storage = firebase.storage();
 export const STATE_CHANGED = firebase.storage.TaskEvent.STATE_CHANGED; // Progress of file upload
 export const arrayAdd = firebase.firestore.FieldValue.arrayUnion;
+export const increment = firebase.firestore.FieldValue.increment;
 
 export const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
 
