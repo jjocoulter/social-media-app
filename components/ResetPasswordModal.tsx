@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
-import { firestore, auth } from "@lib/firebase";
+import { auth } from "@lib/firebase";
 
 import Dialog from "@material-ui/core/Dialog";
 import TextField from "@material-ui/core/TextField";

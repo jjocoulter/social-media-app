@@ -1,10 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import Link from "next/link";
+import type firebase from "firebase";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 
 import { auth, firestore, postToJson } from "@lib/firebase";
 import LikeButton from "@components/LikeButton";
+import CommentModal from "@components/CommentModal";
 
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
@@ -24,7 +26,9 @@ export async function getStaticProps({ params }: { params: any }) {
 
   const postRef = firestore.collection("posts").doc(post);
 
-  postContent = postToJson(await postRef.get());
+  postContent = await postToJson(postRef);
+  console.log(postContent);
+
   path = postRef.path;
   poster = (
     await firestore.collection("users").doc(postContent.postedBy).get()
@@ -71,9 +75,15 @@ const SinglePostPage = (props: any) => {
           <span>{postedAt.toLocaleString()}</span>
         </div>
         <div className="options">
-          <LikeButton postRef={postRef} />
-          <ChatIcon />
-          <ShareIcon />
+          {auth.currentUser ? (
+            <>
+              <LikeButton postRef={postRef} />
+              <AddCommentModal postRef={postRef} />
+              <ShareIcon />
+            </>
+          ) : (
+            ""
+          )}
         </div>
       </>
     );
@@ -97,11 +107,14 @@ const SinglePostPage = (props: any) => {
   };
 
   const PostComments = () => {
-    return post.comments ? (
-      post.comments.map((comment: any, idx: number) => (
-        <Comment comment={comment} key={idx} />
-      ))
+    const comments = post.comments;
+
+    return comments ? (
+      <p>Test</p>
     ) : (
+      // post.comments.forEach((comment: any, idx: number) => (
+      //   <Comment comment={comment} key={idx} />
+      // ))
       <p>No comments to display</p>
     );
   };
@@ -115,6 +128,33 @@ const SinglePostPage = (props: any) => {
         <PostComments />
       </div>
     </main>
+  );
+};
+
+const AddCommentModal = ({
+  postRef,
+}: {
+  postRef: firebase.firestore.DocumentReference;
+}) => {
+  const [openCommentModal, setOpenCommentModal] = useState(false);
+
+  const handleOpenCommentModal = () => {
+    setOpenCommentModal(true);
+  };
+
+  const handleCloseCommentModal = () => {
+    setOpenCommentModal(false);
+  };
+
+  return (
+    <>
+      <ChatIcon onClick={handleOpenCommentModal} />
+      <CommentModal
+        open={openCommentModal}
+        handleClose={handleCloseCommentModal}
+        postRef={postRef}
+      />
+    </>
   );
 };
 

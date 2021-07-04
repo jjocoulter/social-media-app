@@ -30,10 +30,31 @@ export const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
  * Converts a firestore document to JSON
  * @param {DocumentSnapshot} doc
  */
-export function postToJson(doc: { data: () => any }) {
-  const data = doc.data();
+export async function postToJson(doc: any) {
+  const dataQuery = await doc.get();
+  const data = dataQuery.data();
+
+  const commentsRef = doc.collection("comments");
+
+  let comments: any[] = [];
+  if (commentsRef) {
+    let commentsQuery = await commentsRef.get();
+    commentsQuery.forEach((comment: any) => {
+      let commentData = comment.data();
+
+      commentData = {
+        ...commentData,
+        createdAt: commentData.createdAt.toMillis(),
+        modifiedAt: commentData.modifiedAt.toMillis(),
+      };
+
+      comments.push(commentData);
+    });
+  }
+
   return {
     ...data,
+    comments: { ...comments },
     // Firestore Timestamp not serializable to JSON
     createdAt: data.createdAt.toMillis(),
     modifiedAt: data.modifiedAt.toMillis(),
