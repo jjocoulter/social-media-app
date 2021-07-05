@@ -1,8 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import Link from "next/link";
 import type firebase from "firebase";
-import { useDocumentData } from "react-firebase-hooks/firestore";
+import {
+  useDocumentData,
+  useCollectionData,
+} from "react-firebase-hooks/firestore";
 
 import { auth, firestore, postToJson } from "@lib/firebase";
 import LikeButton from "@components/LikeButton";
@@ -12,6 +15,11 @@ import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import Divider from "@material-ui/core/Divider";
 
 import ChatIcon from "@material-ui/icons/Chat";
 import ShareIcon from "@material-ui/icons/Share";
@@ -27,7 +35,6 @@ export async function getStaticProps({ params }: { params: any }) {
   const postRef = firestore.collection("posts").doc(post);
 
   postContent = await postToJson(postRef);
-  console.log(postContent);
 
   path = postRef.path;
   poster = (
@@ -58,9 +65,21 @@ export async function getStaticPaths() {
 
 const SinglePostPage = (props: any) => {
   const postRef = firestore.collection("posts").doc(props.path.split("/")[1]);
+  const commentsRef = postRef.collection("comments");
   const [realtimePost] = useDocumentData(postRef);
+  const [realtimeComments] = useCollectionData(commentsRef);
   const post = realtimePost || props.postContent;
+  const comments = realtimeComments || props.comments;
   const author = props.poster;
+
+  type Comment = {
+    content: string;
+    likeCount: number;
+    likes: Object;
+    postedBy: string;
+    createdAt: number;
+    modifiedAt: number;
+  };
 
   const postedAt =
     typeof post.createdAt === "number"
@@ -102,19 +121,53 @@ const SinglePostPage = (props: any) => {
     return <p className="content">{post.content}</p>;
   };
 
-  const Comment = ({ comment }: { comment: any }) => {
-    return comment ? <p>Comment</p> : <p>No Comment</p>;
+  const Comment = ({ comment }: { comment: Comment }) => {
+    const [commenter, setCommenter] = useState<
+      firebase.firestore.DocumentData | undefined
+    >();
+    useEffect(() => {
+      const getCommenter = async () => {
+        const commenterQuery = await firestore
+          .collection("users")
+          .doc(comment.postedBy)
+          .get();
+        setCommenter(commenterQuery.data());
+      };
+      getCommenter();
+    }, [comment.postedBy]);
+
+    if (commenter == undefined) {
+      return <p></p>;
+    }
+
+    const commenterProfilePic = commenter.profileURL ? (
+      <Avatar src={commenter.profileURL} alt="" />
+    ) : (
+      <Avatar>{commenter.firstName.charAt(0).toUpperCase()}</Avatar>
+    );
+
+    return (
+      <ListItem alignItems="flex-start">
+        <ListItemAvatar>{commenterProfilePic}</ListItemAvatar>
+        <ListItemText
+          primary={comment.content}
+          secondary={commenter.fullName}
+        />
+      </ListItem>
+    );
   };
 
   const PostComments = () => {
-    const comments = post.comments;
-
-    return comments ? (
-      <p>Test</p>
+    return comments != undefined && comments.length != 0 ? (
+      <List>
+        {comments.map((comment: Comment, idx: number) => (
+          <>
+            <Comment comment={comment} key={idx} />
+            <Divider variant="inset" component="li" />
+          </>
+        ))}
+      </List>
     ) : (
-      // post.comments.forEach((comment: any, idx: number) => (
-      //   <Comment comment={comment} key={idx} />
-      // ))
       <p>No comments to display</p>
     );
   };
