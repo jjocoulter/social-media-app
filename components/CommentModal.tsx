@@ -33,8 +33,7 @@ const CommentModal = ({
       postedBy: user,
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
-      likeCount: 1,
-      likes: { user },
+      likeCount: 0,
       content: comment,
     };
     batch.set(commentDoc, data);
