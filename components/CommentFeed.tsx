@@ -6,6 +6,7 @@ import type { Comment } from "@lib/types";
 
 import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
+import React from "react";
 
 const CommentFeed = ({
   postRef,
@@ -14,7 +15,9 @@ const CommentFeed = ({
   postRef: firebase.firestore.DocumentReference;
   propComments: any;
 }) => {
-  const commentsRef = postRef.collection("comments");
+  const commentsRef = postRef
+    .collection("comments")
+    .orderBy("createdAt", "asc");
   const [realtimeComments] = useCollectionData(commentsRef, { idField: "uid" });
   const comments = realtimeComments || propComments;
 
@@ -22,10 +25,10 @@ const CommentFeed = ({
     <List>
       <Divider variant="inset" component="li" />
       {comments.map((comment: Comment, idx: number) => (
-        <>
-          <SingleComment comment={comment} postRef={postRef} key={idx} />
+        <React.Fragment key={idx}>
+          <SingleComment comment={comment} postRef={postRef} />
           <Divider variant="inset" component="li" />
-        </>
+        </React.Fragment>
       ))}
     </List>
   ) : (

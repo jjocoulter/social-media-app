@@ -1,8 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import type firebase from "firebase";
-import { useDocumentData } from "react-firebase-hooks/firestore";
+import {
+  useDocumentData,
+  useCollectionData,
+} from "react-firebase-hooks/firestore";
+import toast from "react-hot-toast";
 
 import { auth, firestore, postToJson } from "@lib/firebase";
 import LikeButton from "@components/LikeButton";
@@ -13,11 +17,13 @@ import UserAvatar from "@components/UserAvatar";
 import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import AvatarGroup from "@material-ui/lab/AvatarGroup";
 
 import ChatIcon from "@material-ui/icons/Chat";
 import ShareIcon from "@material-ui/icons/Share";
 import MoreIcon from "@material-ui/icons/MoreHoriz";
 import { User } from "@lib/types";
+import router from "next/router";
 
 export async function getStaticProps({ params }: { params: any }) {
   const { post } = params;
@@ -59,8 +65,9 @@ export async function getStaticPaths() {
 
 const SinglePostPage = (props: any) => {
   const postRef = firestore.collection("posts").doc(props.path.split("/")[1]);
-  const [realtimePost] = useDocumentData(postRef);
+  const [realtimePost] = useDocumentData(postRef, { idField: "uid" });
   const post = realtimePost || props.postContent;
+
   const author = props.poster;
 
   const postedAt =
@@ -72,7 +79,16 @@ const SinglePostPage = (props: any) => {
     return (
       <>
         <div className="info">
-          <span>Likes: {post.likeCount}</span>
+          <span
+            style={{
+              display: "flex",
+              alignContent: "center",
+              alignItems: "center",
+            }}
+          >
+            Likes: {post.likeCount}
+            <LikesAvatarGroup postRef={postRef} />
+          </span>
           <span>{postedAt.toLocaleString()}</span>
         </div>
         <div className="options">
@@ -115,6 +131,37 @@ const SinglePostPage = (props: any) => {
   );
 };
 
+const LikesAvatarGroup = ({
+  postRef,
+}: {
+  postRef: firebase.firestore.DocumentReference;
+}) => {
+  // TODO: fix appearance of avatar group
+  const likesCollection = postRef.collection("likes");
+  const [likes] = useCollectionData(likesCollection);
+  const [avatars, setAvatars] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getAvatars = async () => {
+      let user;
+      likes?.forEach(async (like) => {
+        const userQuery = await firestore
+          .collection("users")
+          .doc(like.user)
+          .get();
+        user = userQuery.data();
+        const userAvatar = <UserAvatar profile={user as User} />;
+        setAvatars((prevState) => {
+          return [...prevState, userAvatar];
+        });
+      });
+    };
+    getAvatars();
+  }, [likes]);
+
+  return likes ? <AvatarGroup max={4}>{avatars || <></>}</AvatarGroup> : <></>;
+};
+
 const AddCommentModal = ({
   postRef,
 }: {
@@ -144,6 +191,7 @@ const AddCommentModal = ({
 
 const PostHeader = ({ post, author }: { post: any; author: User }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const menuOpen = Boolean(anchorEl);
 
   const handleMoreMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -151,6 +199,7 @@ const PostHeader = ({ post, author }: { post: any; author: User }) => {
   };
 
   const handleClose = () => {
+    setConfirmDelete(false);
     setAnchorEl(null);
   };
 
@@ -158,16 +207,35 @@ const PostHeader = ({ post, author }: { post: any; author: User }) => {
     switch (val) {
       case "edit":
         console.log("edit");
+        handleClose();
 
         break;
       case "delete":
-        console.log("delete");
-
+        if (confirmDelete) {
+          deletePost();
+          handleClose();
+        } else {
+          setConfirmDelete(true);
+        }
         break;
       default:
+        handleClose();
         break;
     }
-    handleClose();
+  };
+
+  const deletePost = () => {
+    firestore
+      .collection("posts")
+      .doc(post.uid)
+      .delete()
+      .then(() => {
+        toast.success("Post removed.");
+        router.push(`/users/${post.postedBy}/`);
+      })
+      .catch((err) => {
+        toast.error("Error removing document: ", err);
+      });
   };
 
   return (
@@ -203,7 +271,7 @@ const PostHeader = ({ post, author }: { post: any; author: User }) => {
           >
             <MenuItem onClick={() => handleMenuClick("edit")}>Edit</MenuItem>
             <MenuItem onClick={() => handleMenuClick("delete")}>
-              Delete
+              {confirmDelete ? "Really?" : "Delete"}
             </MenuItem>
           </Menu>
         </>
