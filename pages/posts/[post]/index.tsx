@@ -144,13 +144,13 @@ const LikesAvatarGroup = ({
   useEffect(() => {
     const getAvatars = async () => {
       let user;
-      likes?.forEach(async (like) => {
+      likes?.forEach(async (like, idx) => {
         const userQuery = await firestore
           .collection("users")
           .doc(like.user)
           .get();
         user = userQuery.data();
-        const userAvatar = <UserAvatar profile={user as User} />;
+        const userAvatar = <UserAvatar profile={user as User} key={idx} />;
         setAvatars((prevState) => {
           return [...prevState, userAvatar];
         });
@@ -206,9 +206,8 @@ const PostHeader = ({ post, author }: { post: any; author: User }) => {
   const handleMenuClick = (val: string) => {
     switch (val) {
       case "edit":
-        console.log("edit");
+        router.push(`/posts/${post.uid}/edit/`);
         handleClose();
-
         break;
       case "delete":
         if (confirmDelete) {
