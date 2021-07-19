@@ -26,9 +26,8 @@ export default function MyApp(props: any) {
   }, []);
 
   React.useEffect(() => {
-    const path: string = router.asPath
-    if (path)
-    console.log("useEffect fired!", { asPath: router.asPath });
+    const path: string = router.asPath;
+    if (path) console.log("useEffect fired!", { asPath: router.asPath });
   }, [router.asPath]);
 
   return (

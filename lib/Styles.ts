@@ -94,6 +94,10 @@ const useStyles = makeStyles((theme: Theme) =>
     createPostTF: {
       width: "50rem",
     },
+    hidden: {
+      display: "none",
+      visibility: "hidden",
+    },
   })
 );
 
