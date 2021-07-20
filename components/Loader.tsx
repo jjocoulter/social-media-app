@@ -1,5 +1,7 @@
 import { CircularProgress } from "@material-ui/core";
+import useStyles from "@lib/Styles";
 
 export default function Loader({ show }: { show: boolean }) {
-  return show ? <CircularProgress /> : null;
+  const classes = useStyles();
+  return show ? <CircularProgress className={classes.centerItems} /> : null;
 }

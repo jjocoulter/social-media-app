@@ -43,7 +43,7 @@ export default function MyApp(props: any) {
         <CssBaseline />
         <Navbar />
         <Component {...pageProps} />
-        <NewPostFab />
+        {/* <NewPostFab /> */}
         <Toaster />
       </UserContext.Provider>
     </React.Fragment>

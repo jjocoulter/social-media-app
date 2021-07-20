@@ -98,6 +98,11 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "none",
       visibility: "hidden",
     },
+    centerItems: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
   })
 );
 
