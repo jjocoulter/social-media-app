@@ -80,8 +80,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     fab: {
       position: "fixed",
-      bottom: "20px",
-      right: "20px",
+      bottom: "20",
+      right: "20",
     },
     createPostForm: {
       display: "flex",

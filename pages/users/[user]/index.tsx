@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import firebase from "firebase";
 import {
   makeStyles,
   createStyles,
@@ -7,14 +9,15 @@ import {
   alpha,
 } from "@material-ui/core/styles";
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
+import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
+import { Avatar, Tooltip } from "@material-ui/core";
 
-import type { User } from "@lib/types";
+import type { User, Post } from "@lib/types";
 import { firestore } from "@lib/firebase";
 import UserAvatar from "@components/UserAvatar";
 import Loader from "@components/Loader";
-import { Avatar, Tooltip } from "@material-ui/core";
-import Link from "next/link";
+import SinglePost from "@components/profile/SinglePost";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -81,6 +84,7 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [showLoader, setShowLoader] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[] | null>(null);
   const userId = router.query.user;
   const classes = useStyles();
 
@@ -105,8 +109,51 @@ const Profile = () => {
     getUser();
   }, [userId]);
 
+  useEffect(() => {
+    const getPosts = async () => {
+      try {
+        let tempPosts: Post[] = [];
+        const postSnapshots = await firestore
+          .collection("posts")
+          .where(firebase.firestore.FieldPath.documentId(), "in", user!.posts)
+          .get();
+
+        postSnapshots.forEach((postSnapshot) => {
+          const post = postSnapshot.data() as Post;
+          if (post.content) {
+            tempPosts.push(post);
+          }
+        });
+        if (tempPosts.length > 0) {
+          setPosts(tempPosts);
+        }
+      } catch (err) {
+        setError(err);
+      }
+    };
+    if (user && user.posts) {
+      getPosts();
+    }
+  }, [user]);
+
   const Content = () => {
-    return <div>Content</div>;
+    return (
+      <div style={{ flexGrow: 1 }}>
+        {posts ? (
+          <Grid container spacing={3}>
+            {posts.map((post, idx) => {
+              return (
+                <Grid item xs={6} sm={4} key={idx}>
+                  <SinglePost key={idx} post={post} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        ) : (
+          <div>No posts to display</div>
+        )}
+      </div>
+    );
   };
 
   return (
